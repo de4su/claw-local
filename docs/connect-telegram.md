@@ -137,12 +137,6 @@ Run it:
 node telegram_bot.js
 ```
 
-## Stuck
-
-**Bot won't reply**
-- Tokens correct?
-- OpenClaw running?
-
 **Connection refused**
 - Start OpenClaw: `npx openclaw gateway --port 18789`
 

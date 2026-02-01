@@ -2,7 +2,7 @@
 
 Your private AI agent that remembers conversations without leaking data.
 
-Run AI models locally with LM Studio and give them real capabilities with OpenClaw. Your AI can control your mouse, execute commands, access files, and automate tasks—all without sending data to the cloud.
+Run AI models locally with LM Studio and give them real capabilities with OpenClaw. Your AI can control your mouse, execute commands, access files, and automate tasks.
 
 ## What You're Setting Up
 

@@ -1,18 +1,22 @@
 # Local LLM + OpenClaw
 
-Want AI that stays on your computer? This is how you set it up.
+Your private AI agent that remembers conversations without leaking data.
 
-LM Studio downloads and runs AI models on your machine. OpenClaw lets those models actually do stuff - control your mouse, run commands, access files, etc. No data leaves your computer.
+Run AI models locally with LM Studio and give them real capabilities with OpenClaw. Your AI can control your mouse, execute commands, access files, and automate tasks—all without sending data to the cloud.
 
 ## What You're Setting Up
 
 - **LM Studio** - Desktop app that runs AI models locally and serves them over an API
 - **OpenClaw** - AI agent framework that can automate tasks on your computer using local models
-- **Result** - AI that actually does things, stays private, costs nothing
 
-## Why
+## Why This Setup?
+You must've heard about OpenClaw, instead of using it with a company owned LLM on cloud, consider a more privacy focused option.  
 
-Your data never leaves your machine. No cloud, no tracking, no monthly bills. Your AI assistant can actually do stuff on your computer.
+Complete privacy - Everything runs on your machine
+
+Persistent memory - Your AI remembers past conversations
+
+Real actions - Not just chat, but actual task execution
 
 ## Quick Start
 

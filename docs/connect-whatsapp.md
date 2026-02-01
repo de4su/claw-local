@@ -182,21 +182,3 @@ Now messages go to your bot.
 ## Test
 
 Send a WhatsApp message to the sandbox number. Your bot should respond.
-
-## Issues
-
-**Webhook not working**
-- ngrok running?
-- URL correct in Twilio?
-
-**Bot doesn't respond**
-- OpenClaw running?
-- Check console output
-
-**Takes a while**
-- WhatsApp + local AI = slow. Normal.
-
-**Go live?**
-- Twilio needs to approve you
-- Check their docs
-- Same code, different setup

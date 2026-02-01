@@ -35,7 +35,7 @@ Drag to Applications.
 
 1. Open LM Studio
 2. Go to "Discover" tab
-3. Find `phi-4-mini-instruct` (good starter model, ~3.8GB)
+3. Find `phi-4-mini-instruct` (or anything you want)
 4. Click download and wait
 5. Go to "Server" tab
 6. Pick the model from dropdown
@@ -51,35 +51,5 @@ curl http://127.0.0.1:1234/v1/models
 ```
 
 Should return JSON with your model.
-
-## Models to Pick
-
-- **Phi 4 Mini** - Small, fast, basic tasks
-- **Mistral** - Bigger, smarter, slower
-- **Llama 2** - Solid all-rounder
-
-## Keep It Running
-
-Leave the window open. That's it. Close it = API stops.
-
-## Problems
-
-**Won't start**
-- Restart LM Studio
-- Did you download a model first?
-- Your computer needs 8GB+ RAM
-
-**Download is slow**
-- Models are 3-13GB. Just let it run.
-
-**"Out of memory"**
-- Your hardware can't run this model
-- Try a smaller one
-- Adjust settings in the Server tab
-
-**OpenClaw can't reach it**
-- Is Server tab showing "Running"?
-- Check port (default 1234)
-- Try the curl command above
 
 That's all. Move to OpenClaw when ready.

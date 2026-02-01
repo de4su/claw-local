@@ -112,19 +112,5 @@ Open `http://localhost:18789`. Done.
 - [Connect to Discord](docs/connect-discord.md)
 - [Connect to WhatsApp](docs/connect-whatsapp.md)
 
-## Troubleshooting Basics
-
-**OpenClaw can't reach LM Studio**
-- LM Studio running? Check the window.
-- Server tab says "Running"? Check.
-- Try: `curl http://127.0.0.1:1234/v1/models`
-
-**Port taken**
-```bash
-npx openclaw gateway --port 19000
-```
-
-**Model not found**
-Open LM Studio, download it from Discover tab. Match the name in your config.
 
 Done. Enjoy your private AI. 🔒

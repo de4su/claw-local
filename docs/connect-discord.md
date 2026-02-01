@@ -171,16 +171,3 @@ Run it:
 ```bash
 node discord_bot.js
 ```
-
-## Issues
-
-**Bot doesn't respond**
-- Bot has permissions in the channel?
-- Token correct?
-- OpenClaw running?
-
-**Slow**
-- AI is processing. Normal.
-
-**Connection refused**
-- Start OpenClaw: `npx openclaw gateway --port 18789`

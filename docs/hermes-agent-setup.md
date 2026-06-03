@@ -1,6 +1,6 @@
 # Hermes Agent Setup
 
-Hermes Agent is a local-first AI agent runner. Like OpenClaw, it can connect to an LLM and perform real tasks, but its config and runtime commands are Hermes-specific.
+Hermes Agent is a local-first AI agent runner. Like OpenClaw, it can connect to an LLM and perform real tasks such as command execution and file automation, but it uses Hermes-specific config and runtime commands.
 
 ## Hermes vs OpenClaw (Quick Difference)
 
@@ -27,8 +27,9 @@ Done.
 
 ### Option B: Local/development install from source
 
+Clone the official Hermes Agent repository, then run:
+
 ```bash
-git clone https://github.com/<your-org>/hermes-agent.git
 cd hermes-agent
 npm install
 npm run build
@@ -41,13 +42,20 @@ Now `hermes-agent` is available in your shell from your local source checkout.
 
 Hermes reads config from:
 - Linux/macOS: `~/.hermes-agent/hermes-agent.json`
-- Windows: `%USERPROFILE%\\.hermes-agent\\hermes-agent.json`
+- Windows: `%USERPROFILE%\.hermes-agent\hermes-agent.json`
 
 Create/edit it:
 
+Linux/macOS:
 ```bash
 mkdir -p ~/.hermes-agent
 nano ~/.hermes-agent/hermes-agent.json
+```
+
+Windows (PowerShell):
+```powershell
+New-Item -ItemType Directory -Path "$env:USERPROFILE\.hermes-agent" -Force
+notepad "$env:USERPROFILE\.hermes-agent\hermes-agent.json"
 ```
 
 Paste this starter config:
@@ -79,7 +87,7 @@ Paste this starter config:
 Key parts:
 - `baseUrl`: where LM Studio serves OpenAI-compatible API
 - `apiKey`: LM Studio accepts any string
-- `model`: must match the model loaded in LM Studio
+- `model`: must match the model ID loaded in LM Studio (check with `curl http://127.0.0.1:1234/v1/models`)
 
 ## Pick the Right Model for Hermes
 
@@ -109,10 +117,10 @@ If installed globally:
 hermes-agent start --config ~/.hermes-agent/hermes-agent.json
 ```
 
-If installed locally/in development:
+If running from a source checkout (Option B):
 
 ```bash
-npx hermes-agent start --config ~/.hermes-agent/hermes-agent.json
+npm run start -- --config ~/.hermes-agent/hermes-agent.json
 ```
 
 You should see Hermes start and connect to LM Studio.
@@ -132,6 +140,8 @@ You should get JSON with your loaded model.
 ```bash
 hermes-agent prompt "Reply with exactly: HERMES_OK"
 ```
+
+`prompt` is a one-shot command for quick testing (separate from `start`, which runs the agent server).
 
 Expected output: `HERMES_OK`
 
@@ -156,7 +166,7 @@ Expected output: `4`
 
 ### Command not found: `hermes-agent`
 - Reopen terminal after global install
-- Or run with `npx hermes-agent ...`
+- If you used global install (Option A), you can also run with `npx hermes-agent ...`
 - If using source install, rerun `npm link`
 
 ### Slow responses
@@ -165,7 +175,7 @@ Expected output: `4`
 - Close other GPU/CPU heavy apps
 
 ### Port already in use
-- Change Hermes `server.port` in config (for example, `3001`)
+- Change Hermes `server.port` in config (e.g., `3001`)
 - Restart Hermes Agent
 
 Done. Hermes is now running locally with LM Studio.

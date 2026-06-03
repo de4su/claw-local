@@ -2,12 +2,13 @@
 
 Your private AI agent that remembers conversations without leaking data.
 
-Run AI models locally with LM Studio and give them real capabilities with OpenClaw. Your AI can control your mouse, execute commands, access files, and automate tasks.
+Run AI models locally with LM Studio and give them real capabilities with OpenClaw or Hermes Agent. Your AI can control your mouse, execute commands, access files, and automate tasks.
 
 ## What You're Setting Up
 
 - **LM Studio** - Desktop app that runs AI models locally and serves them over an API
 - **OpenClaw** - AI agent framework that can automate tasks on your computer using local models
+- **Hermes Agent** - Alternative local-first agent runner that also works with LM Studio
 
 ## Why This Setup?
 You must've heard about OpenClaw, instead of using it with a company owned LLM on cloud, consider a more privacy focused option.  
@@ -112,6 +113,7 @@ Open `http://localhost:18789`. Done.
 
 - [LM Studio Setup](docs/lm-studio-setup.md)
 - [OpenClaw Setup](docs/openclaw-setup.md)
+- [Hermes Agent Setup](docs/hermes-agent-setup.md)
 - [Connect to Telegram](docs/connect-telegram.md)
 - [Connect to Discord](docs/connect-discord.md)
 - [Connect to WhatsApp](docs/connect-whatsapp.md)

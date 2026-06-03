@@ -1,6 +1,6 @@
 # Hermes Agent Setup
 
-Hermes Agent is a local-first AI agent runner. Like OpenClaw, it can connect to an LLM and perform real tasks such as command execution and file automation, but it uses Hermes-specific config and runtime commands.
+Hermes Agent is an open-source, local-first AI agent runner for Node.js environments. Like OpenClaw, it can connect to an LLM and perform real tasks such as command execution and file automation, but it uses Hermes-specific config and runtime commands.
 
 ## Hermes vs OpenClaw (Quick Difference)
 

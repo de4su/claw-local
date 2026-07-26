@@ -1,8 +1,55 @@
 # WhatsApp Bot
 
-Get your local AI agent on WhatsApp. Use Twilio for messaging.
+Get your local AI agent on WhatsApp.
 
-## Setup Twilio
+## Method 1: Built-in OpenClaw Channel (Recommended)
+
+OpenClaw now has native WhatsApp support using QR code login — no Twilio needed.
+
+### Setup
+
+```bash
+openclaw channels login --channel whatsapp
+```
+
+Scan the QR code that appears in your terminal using WhatsApp on your phone.
+
+That's it. Your agent is now on WhatsApp.
+
+**Tip:** Use a dedicated phone number for the agent to avoid risking your personal WhatsApp account.
+
+### Manage
+
+```bash
+openclaw channels list                      # View active channels
+openclaw channels status --channel whatsapp  # Check connectivity
+openclaw channels remove --channel whatsapp  # Remove integration
+```
+
+### Security config
+
+In `~/.openclaw/openclaw.json`:
+```json
+{
+  "channels": {
+    "whatsapp": {
+      "enabled": true,
+      "dmPolicy": "allowlist",
+      "allowFrom": ["+1234567890"]
+    }
+  }
+}
+```
+
+**Always restrict `allowFrom`** to your own phone number. Without this, anyone who messages the WhatsApp number can control your agent.
+
+---
+
+## Method 2: Custom Bot with Twilio
+
+If you want a traditional webhook-based setup using Twilio.
+
+### Setup Twilio
 
 1. Go to https://www.twilio.com/console
 2. Sign up (free, needs credit card)
@@ -13,7 +60,7 @@ Message that number from WhatsApp with their sandbox code.
 
 Get Account SID and Auth Token from Account settings. Save them.
 
-## Python Version
+### Python Version
 
 ```bash
 pip install twilio requests flask
@@ -48,7 +95,7 @@ def whatsapp():
             f"{OPENCLAW_URL}/api/chat",
             json={
                 "messages": [{"role": "user", "content": incoming_msg}],
-                "model": "lmstudio/phi-4-mini-instruct"
+                "model": "lmstudio/qwen-3.6-27b"
             },
             headers={
                 "Authorization": f"Bearer {OPENCLAW_TOKEN}",
@@ -88,97 +135,23 @@ if __name__ == '__main__':
     app.run(debug=False, port=5000)
 ```
 
-## Node.js Version
-
-```bash
-npm install twilio express axios
-```
-
-Create `whatsapp_bot.js`:
-
-```javascript
-const express = require('express');
-const twilio = require('twilio');
-const axios = require('axios');
-
-const OPENCLAW_URL = "http://localhost:18789";
-const OPENCLAW_TOKEN = "your-token-from-openclaw-config";
-
-const TWILIO_ACCOUNT_SID = "your-account-sid";
-const TWILIO_AUTH_TOKEN = "your-auth-token";
-const TWILIO_WHATSAPP_NUMBER = "whatsapp:+1415XXXXXXX";
-
-const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-const app = express();
-
-app.use(express.urlencoded({ extended: false }));
-
-app.post('/whatsapp', async (req, res) => {
-    const incomingMsg = req.body.Body || '';
-    const sender = req.body.From;
-    
-    console.log(`Message from ${sender}: ${incomingMsg}`);
-    
-    try {
-        const response = await axios.post(
-            `${OPENCLAW_URL}/api/chat`,
-            {
-                messages: [{ role: 'user', content: incomingMsg }],
-                model: 'lmstudio/phi-4-mini-instruct'
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${OPENCLAW_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 30000
-            }
-        );
-        
-        const aiResponse = response.data.choices[0].message.content;
-        
-        const message = await client.messages.create({
-            body: aiResponse,
-            from: TWILIO_WHATSAPP_NUMBER,
-            to: sender
-        });
-        
-        console.log(`Sent: ${message.sid}`);
-    } catch (error) {
-        console.error(error);
-        client.messages.create({
-            body: 'Something broke',
-            from: TWILIO_WHATSAPP_NUMBER,
-            to: sender
-        });
-    }
-    
-    res.status(200).send('OK');
-});
-
-app.listen(5000, () => {
-    console.log("Bot running on port 5000");
-});
-```
-
-## Make It Accessible
+### Make It Accessible
 
 Your bot runs on port 5000 but WhatsApp needs to reach it from the internet. Use ngrok:
 
 ```bash
-# Get ngrok from https://ngrok.com/
 ngrok http 5000
 ```
 
 You get a URL like `https://abc123.ngrok.io`
 
-## Connect Twilio
+### Connect Twilio
 
 In Twilio console, WhatsApp sandbox settings:
 - Set webhook to: `https://abc123.ngrok.io/whatsapp`
 
 Now messages go to your bot.
 
-## Test
+### Test
 
 Send a WhatsApp message to the sandbox number. Your bot should respond.

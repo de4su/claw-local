@@ -2,22 +2,59 @@
 
 Add your local AI agent to Discord. Give it tasks from your server.
 
-## Get Discord Bot Token
+## Method 1: Built-in OpenClaw Channel (Recommended)
+
+OpenClaw now has native Discord support — no custom bot code needed.
+
+### Setup
 
 1. Go to https://discord.com/developers/applications
-2. New Application
-3. Bot tab
-4. Add Bot
-5. Copy the token
+2. New Application → Bot tab → Add Bot
+3. Copy the bot token
+4. Enable Message Content Intent under Privileged Gateway Intents
+5. OAuth2 → URL Generator → check `bot` scope → check `Send Messages` and `Read Messages/View Channels`
+6. Copy the invite URL, open in browser, pick your server
 
-Invite it:
-1. OAuth2 → URL Generator
-2. Check `bot` under Scopes
-3. Check `Send Messages` and `Read Messages/View Channels` under Permissions
-4. Copy the URL and open in browser
-5. Pick your server
+Then in your terminal:
+```bash
+openclaw channels add --channel discord
+```
 
-## Python Version
+Paste your bot token when prompted. That's it.
+
+### Manage
+
+```bash
+openclaw channels list                    # View active channels
+openclaw channels status --channel discord # Check connectivity
+openclaw channels remove --channel discord # Remove integration
+```
+
+### Config (manual)
+
+In `~/.openclaw/openclaw.json`:
+```json
+{
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "token": "YOUR_DISCORD_BOT_TOKEN",
+      "dmPolicy": "allowlist",
+      "allowFrom": ["your-discord-user-id"]
+    }
+  }
+}
+```
+
+**Always set `dmPolicy` to `allowlist`** and restrict `allowFrom` to your own user ID to prevent strangers from using your agent.
+
+---
+
+## Method 2: Custom Bot Script
+
+If you want more control, you can write your own bot that talks to OpenClaw's API.
+
+### Python Version
 
 ```bash
 pip install discord.py requests
@@ -61,7 +98,7 @@ async def on_message(message):
                 f"{OPENCLAW_URL}/api/chat",
                 json={
                     "messages": [{"role": "user", "content": user_message}],
-                    "model": "lmstudio/phi-4-mini-instruct"
+                    "model": "lmstudio/qwen-3.6-27b"
                 },
                 headers={
                     "Authorization": f"Bearer {OPENCLAW_TOKEN}",
@@ -95,7 +132,7 @@ Run it:
 python discord_bot.py
 ```
 
-## Node.js Version
+### Node.js Version
 
 ```bash
 npm install discord.js axios
@@ -126,7 +163,7 @@ client.on('ready', () => {
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
-    if (!message.mentions.has(client.user.id) && !message.isDirect()) return;
+    if (!message.mentions.has(client.user.id) && !message.channel.isDMBased()) return;
     
     const userMessage = message.content.replace(`<@${client.user.id}>`, '').trim();
     if (!userMessage) return;
@@ -138,7 +175,7 @@ client.on('messageCreate', async (message) => {
             `${OPENCLAW_URL}/api/chat`,
             {
                 messages: [{ role: 'user', content: userMessage }],
-                model: 'lmstudio/phi-4-mini-instruct'
+                model: 'lmstudio/qwen-3.6-27b'
             },
             {
                 headers: {

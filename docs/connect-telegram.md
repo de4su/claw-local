@@ -2,16 +2,57 @@
 
 Hook your local AI agent to Telegram so you can give it tasks from your phone.
 
-## Get a Bot Token
+## Method 1: Built-in OpenClaw Channel (Recommended)
+
+OpenClaw now has native Telegram support.
+
+### Setup
 
 1. Open Telegram, find `@BotFather`
 2. Send `/newbot`
 3. Give it a name and username
 4. BotFather gives you a token like `123456789:ABCdefGHIjklmnoPQRstuvWXYZabcdefg`
 
-Save it.
+Then in your terminal:
+```bash
+openclaw channels add --channel telegram
+```
 
-## Python Version
+Paste your bot token when prompted. Done.
+
+### Manage
+
+```bash
+openclaw channels list                      # View active channels
+openclaw channels status --channel telegram  # Check connectivity
+openclaw channels remove --channel telegram  # Remove integration
+```
+
+### Config (manual)
+
+In `~/.openclaw/openclaw.json`:
+```json
+{
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "token": "YOUR_TELEGRAM_BOT_TOKEN",
+      "dmPolicy": "allowlist",
+      "allowFrom": ["your-telegram-user-id"]
+    }
+  }
+}
+```
+
+**Always set `dmPolicy` to `allowlist`** to prevent random people from using your agent.
+
+---
+
+## Method 2: Custom Bot Script
+
+If you want more control, write your own bot.
+
+### Python Version
 
 ```bash
 pip install python-telegram-bot requests
@@ -44,7 +85,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             f"{OPENCLAW_URL}/api/chat",
             json={
                 "messages": [{"role": "user", "content": user_message}],
-                "model": "lmstudio/phi-4-mini-instruct"
+                "model": "lmstudio/qwen-3.6-27b"
             },
             headers={
                 "Authorization": f"Bearer {OPENCLAW_TOKEN}",
@@ -78,7 +119,7 @@ Run it:
 python telegram_bot.py
 ```
 
-## Node.js Version
+### Node.js Version
 
 ```bash
 npm install telegraf axios
@@ -110,7 +151,7 @@ bot.on('text', async (ctx) => {
             `${OPENCLAW_URL}/api/chat`,
             {
                 messages: [{ role: 'user', content: userMessage }],
-                model: 'lmstudio/phi-4-mini-instruct'
+                model: 'lmstudio/qwen-3.6-27b'
             },
             {
                 headers: {
@@ -137,8 +178,10 @@ Run it:
 node telegram_bot.js
 ```
 
-**Connection refused**
-- Start OpenClaw: `npx openclaw gateway --port 18789`
+## Troubleshooting
 
-**Slow to respond**
-- AI is processing. Normal. Could be 10-30 seconds depending on hardware.
+**Connection refused:**
+- Start OpenClaw: `openclaw gateway --port 18789`
+
+**Slow to respond:**
+- AI is processing. Normal. Could be 10-30 seconds depending on hardware and model size.

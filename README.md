@@ -2,35 +2,41 @@
 
 Your private AI agent that remembers conversations without leaking data.
 
-Run AI models locally with LM Studio and give them real capabilities with OpenClaw or Hermes Agent. Your AI can control your mouse, execute commands, access files, and automate tasks.
+Run AI models locally with LM Studio and give them real capabilities with OpenClaw or Hermes Agent. Your AI can control your mouse, execute commands, access files, and automate tasks — all without sending a single byte to the cloud.
 
 ## What You're Setting Up
 
-- **LM Studio** - Desktop app that runs AI models locally and serves them over an API
-- **OpenClaw** - AI agent framework that can automate tasks on your computer using local models
-- **Hermes Agent** - Alternative local-first agent runner that also works with LM Studio
+- **LM Studio** (v0.4.20) - Desktop app that runs AI models locally and serves them over an OpenAI-compatible API
+- **OpenClaw** (v2026.7.x) - AI agent framework that can automate tasks on your computer using local models
+- **Hermes Agent** (v0.19.0) - Alternative local-first agent runner by Nous Research, with self-improving skills
 
 ## Why This Setup?
-You must've heard about OpenClaw, instead of using it with a company owned LLM on cloud, consider a more privacy focused option.  
 
-Complete privacy - Everything runs on your machine
+You must've heard about OpenClaw, instead of using it with a company owned LLM on cloud, consider a more privacy focused option.
 
-Persistent memory - Your AI remembers past conversations
+🔒 **Complete privacy** — Everything runs on your machine
 
-Real actions - Not just chat, but actual task execution
+🧠 **Persistent memory** — Your AI remembers past conversations
+
+⚡ **Real actions** — Not just chat, but actual task execution
+
+🛡️ **Security audits** — Built-in tools to harden your setup
 
 ## Quick Start
 
 ### 1. Get LM Studio Running
 
-**Windows:** Download from https://lmstudio.ai/download and run the installer. Download a model from the app, start the server.
+**Windows:**
+```powershell
+irm https://lmstudio.ai/install.ps1 | iex
+```
+Or download from https://lmstudio.ai/download and run the installer.
 
 **Linux:**
 ```bash
-curl -L -o lm-studio.AppImage "https://github.com/lmstudio-ai/lmstudio/releases/download/0.3.3/LM_Studio-0.3.3-x64.AppImage"
-chmod +x lm-studio.AppImage
-./lm-studio.AppImage
+curl -fsSL https://lmstudio.ai/install.sh | bash
 ```
+This installs the `lms` CLI and the `llmster` headless inference engine. For the GUI, download the AppImage from https://lmstudio.ai/download.
 
 **Mac:**
 ```bash
@@ -38,76 +44,63 @@ curl -L -o lm-studio.dmg "https://lmstudio.ai/download/macos"
 open lm-studio.dmg
 ```
 
+Start the server:
+```bash
+lms server start --port 1234 --cors
+```
+Or use the GUI: go to Developer/Server tab → Start Server.
+
 LM Studio serves models on `localhost:1234`.
 
 ### 2. Get OpenClaw
 
 ```bash
-npm install -g openclaw
+curl -fsSL https://openclaw.ai/install.sh | bash
+openclaw onboard
 ```
 
-### 3. Configure OpenClaw
+The `onboard` command walks you through setup interactively — pick LM Studio as your provider, enter `http://127.0.0.1:1234/v1` as the base URL, and select your loaded model.
 
-Edit `~/.openclaw/openclaw.json`:
+### 3. Start Everything
 
-```json
-{
-  "gateway": {
-    "mode": "local",
-    "auth": {
-      "mode": "token",
-      "token": "pick-a-password"
-    }
-  },
-  "agents": {
-    "defaults": {
-      "model": {
-        "primary": "lmstudio/phi-4-mini-instruct"
-      },
-      "models": {
-        "phi-4-mini-instruct": {
-          "alias": "Phi 4 Mini Instruct"
-        }
-      }
-    }
-  },
-  "models": {
-    "providers": {
-      "lmstudio": {
-        "baseUrl": "http://127.0.0.1:1234/v1",
-        "apiKey": "lm-studio",
-        "api": "openai-completions",
-        "models": [
-          {
-            "id": "phi-4-mini-instruct",
-            "name": "Phi 4 Mini Instruct",
-            "reasoning": false,
-            "input": ["text"],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 20256,
-            "maxTokens": 4096
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-### 4. Start Everything
-
-Make sure LM Studio's Server shows "Running", then:
+Make sure LM Studio's Server is running, then:
 
 ```bash
-npx openclaw gateway --port 18789
+openclaw gateway --port 18789
 ```
 
 Open `http://localhost:18789`. Done.
+
+### 4. Harden Your Setup
+
+```bash
+openclaw security audit
+openclaw security audit --fix
+```
+
+This checks for known vulnerabilities and applies recommended fixes.
+
+## Recommended Local Models (July 2026)
+
+| Model | Size | Best For | VRAM Needed |
+|---|---|---|---|
+| Qwen 3.x (27B) | 27B | Daily driver, coding, agentic work | 16-24 GB |
+| Gemma 4 (12B) | 12B | Great generalist, creative writing | 8-16 GB |
+| Phi-4 Mini (3.8B) | 3.8B | Low memory, fast responses | 4 GB |
+| DeepSeek R1 | 1.5-32B | Chain-of-thought reasoning | 8-24 GB |
+| Llama 4 Scout | Various | Massive context window (10M tokens) | 16+ GB |
+
+## Alternatives Worth Knowing
+
+| Tool | What It Does | Role |
+|---|---|---|
+| [Ollama](https://ollama.ai) | Headless CLI model server | LM Studio alternative (no GUI) |
+| [Jan.ai](https://jan.ai) | Privacy-first desktop chat UI | LM Studio alternative (with GUI) |
+| [Open Interpreter](https://github.com/OpenInterpreter/open-interpreter) | Terminal code execution agent | Interactive coding agent |
+| [Aider](https://aider.chat) | Git-integrated coding agent | Pair programming tool |
+| [AnythingLLM](https://anythingllm.com) | Desktop RAG & knowledge base | Document QA & chat |
+
+All of these can use the same local LM Studio or Ollama backend.
 
 ## Full Guides
 
@@ -117,6 +110,18 @@ Open `http://localhost:18789`. Done.
 - [Connect to Telegram](docs/connect-telegram.md)
 - [Connect to Discord](docs/connect-discord.md)
 - [Connect to WhatsApp](docs/connect-whatsapp.md)
+- [Security Guide](docs/security.md)
 
+## ⚠️ Security Notice
+
+OpenClaw runs with high system privileges (shell, filesystem, credentials). Several critical CVEs were disclosed in 2026. Always:
+
+1. Run `openclaw security audit --fix` after installation
+2. Bind the gateway to `127.0.0.1` only
+3. Use strong auth tokens
+4. Run in a container or VM if possible
+5. Keep OpenClaw updated
+
+See [Security Guide](docs/security.md) for full details.
 
 Done. Enjoy your private AI. 🔒

@@ -1,181 +1,163 @@
 # Hermes Agent Setup
 
-Hermes Agent is an open-source, local-first AI agent runner for Node.js environments. Like OpenClaw, it can connect to an LLM and perform real tasks such as command execution and file automation, but it uses Hermes-specific config and runtime commands.
+Hermes Agent is an open-source, local-first AI agent runner by Nous Research. It can connect to any local LLM, execute code, automate tasks, and continuously improve itself by creating reusable skills.
+
+**Current version:** v0.19.0 (Quicksilver Release, July 2026)
 
 ## Hermes vs OpenClaw (Quick Difference)
 
-- **OpenClaw**: Uses `~/.openclaw/openclaw.json` and `openclaw gateway ...`
-- **Hermes Agent**: Uses `~/.hermes-agent/hermes-agent.json` and `hermes-agent start ...`
-- Both can point to **LM Studio** so your model stays local.
+- **OpenClaw**: Background daemon, messaging app integrations, browser-based UI
+- **Hermes Agent**: Terminal-first, self-improving skills, MCP native support
+- Both can point to **LM Studio** or **Ollama** so your model stays local.
 
 ## Before Starting
 
 You need:
-- Node.js installed
-- LM Studio already running
-- A model loaded in LM Studio's **Server** tab (`http://127.0.0.1:1234`)
+- LM Studio or Ollama running with a model loaded
+- The server active (`http://127.0.0.1:1234` for LM Studio, `http://127.0.0.1:11434` for Ollama)
 
 ## Install Hermes Agent
 
-### Option A: Global install (quickest)
-
+**Linux / macOS / WSL2:**
 ```bash
-npm install -g hermes-agent
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 ```
 
-Done.
-
-### Option B: Local/development install from source
-
-Clone the official Hermes Agent repository, then run:
-
-```bash
-cd hermes-agent
-npm install
-npm run build
-npm link
-```
-
-Now `hermes-agent` is available in your shell from your local source checkout.
-
-## Configure Hermes for LM Studio
-
-Hermes reads config from:
-- Linux/macOS: `~/.hermes-agent/hermes-agent.json`
-- Windows: `%USERPROFILE%\.hermes-agent\hermes-agent.json`
-
-Create/edit it:
-
-Linux/macOS:
-```bash
-mkdir -p ~/.hermes-agent
-nano ~/.hermes-agent/hermes-agent.json
-```
-
-Windows (PowerShell):
+**Windows (PowerShell):**
 ```powershell
-New-Item -ItemType Directory -Path "$env:USERPROFILE\.hermes-agent" -Force
-notepad "$env:USERPROFILE\.hermes-agent\hermes-agent.json"
+iex (irm https://hermes-agent.nousresearch.com/install.ps1)
 ```
 
-Paste this starter config:
-
-```json
-{
-  "server": {
-    "host": "127.0.0.1",
-    "port": 3000
-  },
-  "llm": {
-    "provider": "openai-compatible",
-    "baseUrl": "http://127.0.0.1:1234/v1",
-    "apiKey": "lm-studio",
-    "model": "qwen2.5-7b-instruct"
-  },
-  "agent": {
-    "name": "Hermes Local",
-    "temperature": 0.2,
-    "maxTokens": 2048
-  },
-  "tools": {
-    "shell": true,
-    "filesystem": true
-  }
-}
+**Update existing install:**
+```bash
+hermes update
 ```
 
-Key parts:
-- `baseUrl`: where LM Studio serves OpenAI-compatible API
-- `apiKey`: LM Studio accepts any string
-- `model`: must match the model ID loaded in LM Studio (check with `curl http://127.0.0.1:1234/v1/models`)
+## Configure for LM Studio
 
-## Pick the Right Model for Hermes
+Run the interactive model picker:
+```bash
+hermes model
+```
 
-For Hermes tasks, use an **instruction-tuned** model first.
+Select **Custom Endpoint / Local Model** and enter:
+- URL: `http://localhost:1234/v1`
+- Model: the model ID loaded in LM Studio
 
-Good local starting points:
-- `qwen2.5-7b-instruct`
-- `phi-4-mini-instruct`
-- `llama-3.1-8b-instruct`
+Or for Ollama:
+- URL: `http://localhost:11434`
+
+### Config files
+
+Hermes stores config in:
+- Settings: `~/.hermes/config.yaml`
+- Secrets: `~/.hermes/.env`
+
+Example `config.yaml`:
+```yaml
+default_model: qwen-3.6-27b
+default_provider: local
+temperature: 0.2
+max_tokens: 4096
+
+providers:
+  local:
+    type: openai-compatible
+    base_url: http://127.0.0.1:1234/v1
+    api_key: lm-studio
+
+mcp_servers:
+  github:
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+```
+
+## MCP (Model Context Protocol) Support
+
+Hermes Agent has native MCP support. Manage MCP servers with:
+
+```bash
+hermes mcp              # Interactive MCP server manager
+hermes mcp catalog      # Browse available MCP servers
+```
+
+During a session, reload MCP tools with `/reload-mcp`.
+
+Tools are automatically prefixed with server names (e.g., `mcp_github_create_issue`) for clarity.
+
+## Pick the Right Model
+
+### Local models (on your GPU)
+
+| Model | Parameters | Good For |
+|---|---|---|
+| Nous Hermes 4 (36B/70B) | 36-70B | Best tool calling, built for Hermes |
+| Qwen 3.x (14B/32B) | 14-32B | Best all-around for mid-range GPUs |
+| DeepSeek R1 | Various | Step-by-step reasoning |
+
+### Cloud models (via API)
+
+| Model | Good For |
+|---|---|
+| Claude 3.5/3.7 Sonnet | Gold standard for agentic coding |
+| DeepSeek V3/R1 (OpenRouter) | Best cost-to-performance ratio |
+| Gemini 2.0/3 Flash | High-speed, cheap sub-agent tasks |
 
 Tips:
-- Start with 7B/8B models if your machine can handle them
-- Use 4-bit quantized versions for lower RAM/VRAM
-- Keep `temperature` low (`0.1` to `0.3`) for tool-heavy tasks
+- Start with 7B-14B models if your machine can handle them
+- Use Q4/Q5 quantized versions for lower VRAM
+- Keep `temperature` low (0.1-0.3) for tool-heavy tasks
+- Set context length to 64k+ tokens for reliable tool calling
 
-To change model, update only this line in `hermes-agent.json`:
-
-```json
-"model": "your-loaded-model-id"
-```
-
-## Run Hermes Agent Locally
-
-If installed globally:
+## Run Hermes Agent
 
 ```bash
-hermes-agent start --config ~/.hermes-agent/hermes-agent.json
+hermes
 ```
 
-If running from a source checkout (Option B):
+That's it. Opens the interactive TUI.
+
+Or start the web UI:
+```bash
+hermes --web
+```
+
+## Self-Improving Skills
+
+Hermes automatically creates reusable skill files when it solves tasks. These are saved locally and loaded in future sessions, so it gets better over time without any cloud training.
+
+## Verify Setup
 
 ```bash
-npm run start -- --config ~/.hermes-agent/hermes-agent.json
+hermes doctor
 ```
 
-You should see Hermes start and connect to LM Studio.
+Checks LLM connectivity, tool availability, and environment health.
 
-## Test the Setup
-
-### 1) Confirm LM Studio API
+### Quick test
 
 ```bash
-curl http://127.0.0.1:1234/v1/models
+hermes prompt "Reply with exactly: HERMES_OK"
 ```
-
-You should get JSON with your loaded model.
-
-### 2) Send a quick Hermes prompt
-
-```bash
-hermes-agent prompt "Reply with exactly: HERMES_OK"
-```
-
-`prompt` is a one-shot command for quick testing (separate from `start`, which runs the agent server).
 
 Expected output: `HERMES_OK`
 
-### 3) Basic tool-use sanity check
-
-```bash
-hermes-agent prompt "What is 2 + 2? Reply with one number."
-```
-
-Expected output: `4`
-
 ## Troubleshooting
 
-### Hermes cannot connect to LM Studio
+**Cannot connect to LM Studio:**
 - Check LM Studio Server tab is running
-- Confirm URL is exactly `http://127.0.0.1:1234/v1`
-- Try `curl http://127.0.0.1:1234/v1/models`
+- Confirm URL is `http://127.0.0.1:1234/v1`
+- Run `curl http://127.0.0.1:1234/v1/models`
 
-### Model not found
-- Load that exact model in LM Studio first
-- Ensure `"model"` value matches model ID from `/v1/models`
+**Model not found:**
+- Load the model in LM Studio first
+- Check model ID matches with `hermes model`
 
-### Command not found: `hermes-agent`
-- Reopen terminal after global install
-- If you used global install (Option A), you can also run with `npx hermes-agent ...`
-- If using source install, rerun `npm link`
-
-### Slow responses
+**Slow responses:**
 - Switch to a smaller model
-- Lower `maxTokens`
+- Lower `max_tokens`
 - Close other GPU/CPU heavy apps
-
-### Port already in use
-- Change Hermes `server.port` in config (e.g., `3001`)
-- Restart Hermes Agent
 
 Done. Hermes is now running locally with LM Studio.
